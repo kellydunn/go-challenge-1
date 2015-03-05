@@ -49,9 +49,9 @@ func DecodeFile(path string) (*Pattern, error) {
 		return nil, err
 	}
 
-        // Keeps track of all the bytes read after the SPLICE string
-        // So it will ignore garbage data after the relevant information.
-        bytesRead := 0
+	// Keeps track of all the bytes read after the SPLICE string
+	// So it will ignore garbage data after the relevant information.
+	bytesRead := 0
 
 	version := make([]byte, VERSION_SIZE)
 	err = binary.Read(reader, binary.BigEndian, version)
