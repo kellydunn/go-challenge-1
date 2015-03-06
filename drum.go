@@ -10,6 +10,10 @@ import (
 
 const (
 	FRAMES_PER_BUFFER = 8196
+	SAMPLE_RATE       = 44100
+	FRAMES_PER_SAMPLE = 256
+	INPUT_CHANNELS    = 0
+	OUTPUT_CHANNELS   = 2
 )
 
 func Init() {
@@ -24,13 +28,20 @@ func LoadSample(filename string) (*Sample, error) {
 	}
 
 	defer soundFile.Close()
-	buffer := make([]float32, 8192)
+	buffer := make([]float32, FRAMES_PER_BUFFER)
 	s := &Sample{
 		Buffer: buffer,
 	}
 
-	s.Stream, err = portaudio.OpenDefaultStream(0, 2, 44100, 256, &s.Buffer)
-	if err != nil {
+	s.Stream, err = portaudio.OpenDefaultStream(
+		INPUT_CHANNELS,
+		OUTPUT_CHANNELS,
+		SAMPLE_RATE,
+		FRAMES_PER_SAMPLE,
+		&s.Buffer,
+	)
+
+        if err != nil {
 		return nil, err
 	}
 
@@ -44,17 +55,11 @@ func LoadSample(filename string) (*Sample, error) {
 
 	s.Stream.Write()
 
-        time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 5)
 
 	s.Stream.Stop()
 
 	return s, nil
-}
-
-func (s *Sample) Play(in []float32, out []float32) {
-	for i := range in {
-		out[i] = in[i]
-	}
 }
 
 type Sample struct {
