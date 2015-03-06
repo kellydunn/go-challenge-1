@@ -4,12 +4,12 @@ package drum
 
 import (
 	"code.google.com/p/portaudio-go/portaudio"
-	"encoding/binary"
-	"fmt"
-	"io"
-	_ "io/ioutil"
-	"os"
-        "errors"
+	"github.com/mkb218/gosndfile/sndfile"
+        "time"
+)
+
+const (
+	FRAMES_PER_BUFFER = 8196
 )
 
 func Init() {
@@ -17,118 +17,43 @@ func Init() {
 }
 
 func LoadSample(filename string) (*Sample, error) {
-	fd, err := os.Open(filename)
+	var info sndfile.Info
+	soundFile, err := sndfile.Open(filename, sndfile.Read, &info)
 	if err != nil {
 		return nil, err
 	}
 
-	sample := &Sample{
-		Buffer: []float32{},
+	defer soundFile.Close()
+	buffer := make([]float32, 10*info.Samplerate*info.Channels)        
+	s := &Sample{
+		Buffer: buffer,
 	}
 
-	id, data, err := readChunk(fd)
-	if err != nil {
-		return nil, err
-	}
-	if id.String() != "FORM" {
-		return nil, errors.New("Bad File Format")
-	}
-	_, err = data.Read(id[:])
+	s.Stream, err = portaudio.OpenDefaultStream(0, 1, 44100, len(s.Buffer), &s.Buffer)
 	if err != nil {
 		return nil, err
 	}
 
-	if id.String() != "AIFF" {
-		return nil, errors.New("Bad File Format")
-	}
-	var c commonChunk
-	var audio io.Reader
-	for {
-		id, chunk, err := readChunk(data)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		switch id.String() {
-		case "COMM":
-			err = binary.Read(chunk, binary.BigEndian, &c)
-                        if err != nil {
-                           return nil, err
-                        }
-                case "SSND":
-			chunk.Seek(8, 1) //ignore offset and block
-			audio = chunk
-		default:
-			fmt.Printf("ignoring unknown chunk '%s'\n", id)
-		}
-	}
+        s.Stream.Start()
+        defer s.Stream.Close()
 
-        
-
-	h, err := portaudio.DefaultHostApi()
+	_, err = soundFile.ReadItems(buffer)
 	if err != nil {
 		return nil, err
 	}
 
-	p := portaudio.LowLatencyParameters(h.DefaultInputDevice, h.DefaultOutputDevice)
+        time.Sleep(time.Second * 10)
 
-	p.Input.Channels = 1
-	p.Output.Channels = 1
-
-	sample.Stream, err = portaudio.OpenStream(p, sample.Play)
-	if err != nil {
-		return nil, err
-	}
-
-	return sample, nil
-}
-
-type Sample struct {
-	Stream *portaudio.Stream
-	Buffer []float32
+        return s, nil
 }
 
 func (s *Sample) Play(in []float32, out []float32) {
-	for i := range out {
-		out[i] = s.Buffer[i]
+	for i := range in {
+		out[i] = in[i]
 	}
-
-	fmt.Printf("FILLED BUFFER")
 }
 
-func readChunk(r readerAtSeeker) (id ID, data *io.SectionReader, err error) {
-	_, err = r.Read(id[:])
-	if err != nil {
-		return
-	}
-	var n int32
-	err = binary.Read(r, binary.BigEndian, &n)
-	if err != nil {
-		return
-	}
-	off, _ := r.Seek(0, 1)
-	data = io.NewSectionReader(r, off, int64(n))
-	_, err = r.Seek(int64(n), 1)
-	return
-}
-
-type readerAtSeeker interface {
-	io.Reader
-	io.ReaderAt
-	io.Seeker
-}
-
-type ID [4]byte
-
-func (id ID) String() string {
-	return string(id[:])
-}
-
-type commonChunk struct {
-	NumChans      int16
-	NumSamples    int32
-	BitsPerSample int16
-	SampleRate    [10]byte
+type Sample struct {
+	Buffer    []float32
+	Stream *portaudio.Stream
 }
