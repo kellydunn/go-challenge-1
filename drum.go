@@ -41,7 +41,7 @@ func LoadSample(filename string) (*Sample, error) {
 		&s.Buffer,
 	)
 
-        if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
