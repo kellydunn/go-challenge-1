@@ -11,21 +11,27 @@ const (
 	MICROSECOND = 1000000000
 )
 
+var DEFAULT_BPM float32 = 120.0
+
 type Timer struct {
      Pulses chan int
      Done chan bool
      Lock *sync.Mutex
-     BPM float64
+     BPM float32
 }
 
-func NewTimer(bpm float64) *Timer {
+func NewTimer() *Timer {
      t := &Timer{
        Pulses: make(chan int),
        Done: make(chan bool),
-       BPM: bpm,
+       BPM: DEFAULT_BPM,
      }
 
      return t
+}
+
+func (t * Timer) SetBPM(bpm float32) {
+	t.BPM = bpm
 }
 
 func (t * Timer) Start() {
@@ -40,12 +46,11 @@ func (t * Timer) Start() {
               interval := microsecondsPerPulse(t.BPM)
               time.Sleep(interval)
               t.Pulses <- 1
-              fmt.Printf("PULSE\n")
             }
         }
      }()
 }
 
-func microsecondsPerPulse(bpm float64) time.Duration {
+func microsecondsPerPulse(bpm float32) time.Duration {
 	return time.Duration((MINUTE * MICROSECOND) / (PPQN * bpm))
 }

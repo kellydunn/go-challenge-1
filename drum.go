@@ -5,16 +5,17 @@ package drum
 import (
 	"code.google.com/p/portaudio-go/portaudio"
 	"github.com/mkb218/gosndfile/sndfile"
-	"time"
 )
 
 const (
-	FRAMES_PER_BUFFER = 8196
+	FRAMES_PER_BUFFER = 12800
 	SAMPLE_RATE       = 44100
 	FRAMES_PER_SAMPLE = 256
 	INPUT_CHANNELS    = 0
 	OUTPUT_CHANNELS   = 2
 )
+
+var Master = NewSequencer()
 
 func Init() {
 	portaudio.Initialize()
@@ -26,11 +27,17 @@ func LoadSample(filename string) (*Sample, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
+	buffer := make([]float32, 10*info.Samplerate*info.Channels)
+	numRead, err := soundFile.ReadItems(buffer)
+	if err != nil {
+		return nil, err
+	}	
+	
 	defer soundFile.Close()
-	buffer := make([]float32, FRAMES_PER_BUFFER)
+	
 	s := &Sample{
-		Buffer: buffer,
+		Buffer: buffer[:numRead],
 	}
 
 	s.Stream, err = portaudio.OpenDefaultStream(
@@ -45,24 +52,22 @@ func LoadSample(filename string) (*Sample, error) {
 		return nil, err
 	}
 
-	s.Stream.Start()
-	defer s.Stream.Close()
-
-	_, err = soundFile.ReadItems(buffer)
-	if err != nil {
-		return nil, err
-	}
-
-	s.Stream.Write()
-
-	time.Sleep(time.Second * 5)
-
-	s.Stream.Stop()
-
 	return s, nil
 }
 
 type Sample struct {
 	Buffer []float32
 	Stream *portaudio.Stream
+}
+
+func (s * Sample) Play() {
+	go func() {
+		s.Stream.Start()		
+		s.Stream.Write()
+		s.Stream.Stop()
+	}()
+}
+
+func (s * Sample) Close() {
+	s.Stream.Close()
 }

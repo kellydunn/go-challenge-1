@@ -65,7 +65,7 @@ func DecodeFile(path string) (*Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	bytesRead += 4
+	bytesRead += BPM_SIZE
 
 	p.Version = string(bytes.Trim(version, EMPTY_BYTE))
 	p.Tempo = bpm
@@ -115,6 +115,12 @@ func DecodeFile(path string) (*Pattern, error) {
 		t.Id = id
 		t.Name = trackName
 		t.StepSequence = StepSequence{Steps: steps}
+		t.Sample, err = LoadSample("kits/" + p.Version + "/" + t.Name + ".wav")
+
+		if err != nil {
+			return nil, err
+		}
+		
 		p.Tracks = append(p.Tracks, t)
 	}
 
@@ -146,6 +152,7 @@ type Track struct {
 	Id           uint8
 	NameLen      uint32
 	Name         string
+	Sample *Sample	
 	StepSequence StepSequence
 }
 
