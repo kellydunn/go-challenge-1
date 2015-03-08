@@ -2,7 +2,7 @@ package drum
 
 import (
 	"bytes"
-	)
+)
 
 type StepSequence struct {
 	Steps []byte

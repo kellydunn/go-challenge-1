@@ -21,7 +21,7 @@ func EncodePattern(pattern *Pattern, path string) error {
 	}
 
 	var size uint64
-	size = uint64(VERSION_SIZE + BPM_SIZE)
+	size = uint64(VERSION_SIZE + TEMPO_SIZE)
 	for _, track := range pattern.Tracks {
 		size += uint64(TRACK_ID_SIZE + 4 + len(track.Name) + STEP_SEQUENCE_SIZE)
 	}

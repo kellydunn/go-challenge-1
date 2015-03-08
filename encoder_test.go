@@ -1,76 +1,52 @@
 package drum
 
 import (
-	"bytes"
-	"io/ioutil"
-	"os"
-	"path"
 	"testing"
 )
 
-func TestEncodePattern(t *testing.T) {
-	p := &Pattern{
-		Version: "0.808-alpha",
-		Tempo:   123.1,
-	}
+var TestPattern = &Pattern{
+	Version: "0.808-alpha",
+	Tempo:   123.1,
+	Tracks: []*Track{
+		&Track{
+			Id:   0,
+			Name: "kick",
+			StepSequence: StepSequence{
+				Steps: []byte{
+					0, 0, 0, 0,
+					0, 0, 0, 0,
+					0, 0, 0, 0,
+					0, 0, 0, 0,
+				},
+			},
+		},
+	},
+}
 
-	err := EncodePattern(p, "fixtures/test.splice")
+// Tests that a valid pattern can be encoded into a splice file.
+func TestEncodePattern(t *testing.T) {
+	err := EncodePattern(TestPattern, "fixtures/test-encoded.splice")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 }
 
-func TestDecodeEncode(t *testing.T) {
-	tData := []struct {
-		path   string
-		output string
-	}{
-		{"pattern_1.splice",
-			`Saved with HW Version: 0.808-alpha
-Tempo: 120                      
-(0) kick	|x---|x---|x---|x---|
-(1) snare	|----|x---|----|x---|
-(2) clap	|----|x-x-|----|----|
-(3) hh-open	|--x-|--x-|x-x-|--x-|
-(4) hh-close	|x---|x---|----|x--x|
-(5) cowbell	|----|----|--x-|----|
-`,
-		},
+// An integration test that asserts that a Encoded file
+// Can also be successfully Decoded, and has the same string
+// Representation as the original pattern.
+func TestEncodeDecode(t *testing.T) {
+
+	err := EncodePattern(TestPattern, "fixtures/test-encoded.splice")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
 	}
 
-	for _, exp := range tData {
-		decoded, err := DecodeFile(path.Join("fixtures", exp.path))
-		if err != nil {
-			t.Errorf("Unexpected Error testing a full integration of decoding and encoding a splice file, %v", err)
-		}
+	decoded, err := DecodeFile("fixtures/test-encoded.splice")
+	if err != nil {
+		t.Errorf("Unexpected Error testing a full integration of decoding and encoding a splice file, %v", err)
+	}
 
-		err = EncodePattern(decoded, path.Join("fixtures", exp.path+"-encoded"))
-		if err != nil {
-			t.Errorf("Unexpected Error re-encoding a new file: %v", err)
-		}
-
-		fd, err := os.Open(path.Join("fixtures", exp.path+"-encoded"))
-		if err != nil {
-
-		}
-
-		originalFixture, err := ioutil.ReadAll(fd)
-		if err != nil {
-
-		}
-
-		newFd, err := os.Open(path.Join("fixtures", exp.path+"-encoded"))
-		if err != nil {
-
-		}
-
-		newFixture, err := ioutil.ReadAll(newFd)
-		if err != nil {
-
-		}
-
-		if bytes.Compare(originalFixture, newFixture) != 0 {
-			t.Errorf("Old and new files differ")
-		}
+	if TestPattern.String() != decoded.String() {
+		t.Errorf("Decoded string from newly encoded file does not match.  \nExpected: '%v' \nActual: '%v'", TestPattern.String(), []byte(decoded.String()))
 	}
 }

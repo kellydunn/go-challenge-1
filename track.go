@@ -1,10 +1,9 @@
 package drum
 
 import (
-	"io"
 	"encoding/binary"
-	
-	)
+	"io"
+)
 
 type Track struct {
 	Id           uint8
@@ -26,7 +25,7 @@ func readTrackId(reader io.Reader, t *Track) (int, error) {
 	return TRACK_ID_SIZE, nil
 }
 
-func readTrackStepSequence(reader io.Reader, t*Track) (int, error) {
+func readTrackStepSequence(reader io.Reader, t *Track) (int, error) {
 	steps := make([]byte, STEP_SEQUENCE_SIZE)
 	err := binary.Read(reader, binary.BigEndian, &steps)
 	if err != nil {
@@ -38,7 +37,7 @@ func readTrackStepSequence(reader io.Reader, t*Track) (int, error) {
 	return STEP_SEQUENCE_SIZE, nil
 }
 
-func readTrackName(reader io.Reader, t*Track) (int,error) {
+func readTrackName(reader io.Reader, t *Track) (int, error) {
 	bytesRead := 0
 
 	var trackNameLen uint32
@@ -56,7 +55,7 @@ func readTrackName(reader io.Reader, t*Track) (int,error) {
 	}
 
 	t.Name = string(trackNameBytes)
-	
+
 	bytesRead += int(trackNameLen)
 
 	return bytesRead, nil

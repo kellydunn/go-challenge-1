@@ -1,10 +1,10 @@
 package drum
 
 import (
-	"encoding/binary"
 	"bytes"
-	"io"
+	"encoding/binary"
 	"fmt"
+	"io"
 )
 
 // Pattern is the high level representation of the
@@ -43,19 +43,19 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 	bytesRead := 0
 
 	// Reads the Pattern Version from the passed in binary file.
-	read, err := readPatternVersionString(reader, p)
+	read, err := readPatternVersion(reader, p)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	bytesRead += read
 
-	// Reads the Pattern Tempo from the passed in binary file.	
+	// Reads the Pattern Tempo from the passed in binary file.
 	read, err = readPatternTempo(reader, p)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	bytesRead += read
 
 	p.Tracks = []*Track{}
@@ -66,28 +66,28 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 
 		t := &Track{}
 
-		// Reads the Track Id from the passed in binary file.			
+		// Reads the Track Id from the passed in binary file.
 		read, err = readTrackId(reader, t)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		bytesRead += read
 
-		// Reads the Track Name from the passed in binary file.		
+		// Reads the Track Name from the passed in binary file.
 		read, err = readTrackName(reader, t)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		bytesRead += read
-		
+
 		// Reads the Track Step sequence from the passed in binary file.
 		read, err = readTrackStepSequence(reader, t)
 		if err != nil {
-			return  nil, err
+			return nil, err
 		}
-		
+
 		bytesRead += read
 
 		p.Tracks = append(p.Tracks, t)
@@ -108,7 +108,7 @@ func (p *Pattern) String() string {
 	return buf.String()
 }
 
-func readPatternVersionString(reader io.Reader, p *Pattern) (int, error) {
+func readPatternVersion(reader io.Reader, p *Pattern) (int, error) {
 	version := make([]byte, VERSION_SIZE)
 	err := binary.Read(reader, binary.BigEndian, version)
 	if err != nil {
@@ -116,11 +116,11 @@ func readPatternVersionString(reader io.Reader, p *Pattern) (int, error) {
 	}
 
 	p.Version = string(bytes.Trim(version, EMPTY_BYTE))
-	
+
 	return VERSION_SIZE, nil
 }
 
-func readPatternTempo(reader io.Reader, p*Pattern) (int, error) {
+func readPatternTempo(reader io.Reader, p *Pattern) (int, error) {
 	var tempo float32
 	err := binary.Read(reader, binary.LittleEndian, &tempo)
 	if err != nil {
@@ -129,5 +129,5 @@ func readPatternTempo(reader io.Reader, p*Pattern) (int, error) {
 
 	p.Tempo = tempo
 
-	return BPM_SIZE, nil
+	return TEMPO_SIZE, nil
 }
