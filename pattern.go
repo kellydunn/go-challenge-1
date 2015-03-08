@@ -15,27 +15,34 @@ type Pattern struct {
 	Tracks  []*Track
 }
 
+// Creates and returns a pointer to a new Pattern.
+// Returns an error if one was encountered from attempting to read
+// from the passed in io.Reader.  This can happen if the
+// passed in reader does not comply with the binary Splice format.
+//
+// To learn more about the format, visit the README.md at the root level of this project.
 func NewPattern(reader io.Reader) (*Pattern, error) {
 	p := &Pattern{}
 
-	// Header
+	// Read the "SPLICE" header from the binary file.
 	spliceFile := make([]byte, SPLICE_FILE_SIZE)
 	err := binary.Read(reader, binary.BigEndian, spliceFile)
 	if err != nil {
 		return nil, err
 	}
 
+	// Read the size of the file from the header.
 	var size uint64
 	err = binary.Read(reader, binary.BigEndian, &size)
 	if err != nil {
 		return nil, err
 	}
 
-	// Keeps track of all the bytes read after the SPLICE string
-	// So it will ignore garbage data after the relevant information.
+	// This counter keeps track of all the bytes read after the headers
+	// such that it will ignore garbage data that occurs after the designated size.
 	bytesRead := 0
 
-	// Read Version
+	// Reads the Pattern Version from the passed in binary file.
 	read, err := readPatternVersionString(reader, p)
 	if err != nil {
 		return nil, err
@@ -43,7 +50,7 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 	
 	bytesRead += read
 
-	// Read Tempo
+	// Reads the Pattern Tempo from the passed in binary file.	
 	read, err = readPatternTempo(reader, p)
 	if err != nil {
 		return nil, err
@@ -53,10 +60,13 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 
 	p.Tracks = []*Track{}
 
+	// Until we read up to the passed in size of the file
+	// We will continue to consume data as Tracks.
 	for bytesRead < int(size) {
-		// Read tracks
+
 		t := &Track{}
 
+		// Reads the Track Id from the passed in binary file.			
 		read, err = readTrackId(reader, t)
 		if err != nil {
 			return nil, err
@@ -64,6 +74,7 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 		
 		bytesRead += read
 
+		// Reads the Track Name from the passed in binary file.		
 		read, err = readTrackName(reader, t)
 		if err != nil {
 			return nil, err
@@ -71,6 +82,7 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 		
 		bytesRead += read
 		
+		// Reads the Track Step sequence from the passed in binary file.
 		read, err = readTrackStepSequence(reader, t)
 		if err != nil {
 			return  nil, err

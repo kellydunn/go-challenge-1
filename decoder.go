@@ -25,5 +25,3 @@ func DecodeFile(path string) (*Pattern, error) {
 
 	return NewPattern(reader)
 }
-
-
