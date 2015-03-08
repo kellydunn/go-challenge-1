@@ -1,9 +1,8 @@
 package drum
 
-import ("time"
-       "sync"
-       "fmt"
-       "log")
+import (
+	"time"
+)
 
 const (
 	PPQN        = 24.0
@@ -14,41 +13,38 @@ const (
 var DEFAULT_BPM float32 = 120.0
 
 type Timer struct {
-     Pulses chan int
-     Done chan bool
-     Lock *sync.Mutex
-     BPM float32
+	Pulses chan int
+	Done   chan bool
+	BPM    float32
 }
 
 func NewTimer() *Timer {
-     t := &Timer{
-       Pulses: make(chan int),
-       Done: make(chan bool),
-       BPM: DEFAULT_BPM,
-     }
+	t := &Timer{
+		Pulses: make(chan int),
+		Done:   make(chan bool),
+		BPM:    DEFAULT_BPM,
+	}
 
-     return t
+	return t
 }
 
-func (t * Timer) SetBPM(bpm float32) {
+func (t *Timer) SetBPM(bpm float32) {
 	t.BPM = bpm
 }
 
-func (t * Timer) Start() {
-     log.Printf("STARTING TIMER")
-     go func() {
-        for {
-            select {
-            case <- t.Done :
-              fmt.Printf("DONE\n")
-              break
-            default:
-              interval := microsecondsPerPulse(t.BPM)
-              time.Sleep(interval)
-              t.Pulses <- 1
-            }
-        }
-     }()
+func (t *Timer) Start() {
+	go func() {
+		for {
+			select {
+			case <-t.Done:
+				break
+			default:
+				interval := microsecondsPerPulse(t.BPM)
+				time.Sleep(interval)
+				t.Pulses <- 1
+			}
+		}
+	}()
 }
 
 func microsecondsPerPulse(bpm float32) time.Duration {

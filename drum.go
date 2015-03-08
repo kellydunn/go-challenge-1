@@ -15,10 +15,11 @@ const (
 	OUTPUT_CHANNELS   = 2
 )
 
-var Master = NewSequencer()
+var Master *Sequencer
 
 func Init() {
 	portaudio.Initialize()
+	Master = NewSequencer()
 }
 
 func LoadSample(filename string) (*Sample, error) {
@@ -27,26 +28,19 @@ func LoadSample(filename string) (*Sample, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	buffer := make([]float32, 10*info.Samplerate*info.Channels)
 	numRead, err := soundFile.ReadItems(buffer)
 	if err != nil {
 		return nil, err
-	}	
-	
-	defer soundFile.Close()
-	
-	s := &Sample{
-		Buffer: buffer[:numRead],
 	}
 
-	s.Stream, err = portaudio.OpenDefaultStream(
-		INPUT_CHANNELS,
-		OUTPUT_CHANNELS,
-		SAMPLE_RATE,
-		FRAMES_PER_SAMPLE,
-		&s.Buffer,
-	)
+	defer soundFile.Close()
+
+	s := &Sample{
+		Buffer: buffer[:numRead],
+		Playhead: int(numRead),
+	}
 
 	if err != nil {
 		return nil, err
@@ -57,15 +51,5 @@ func LoadSample(filename string) (*Sample, error) {
 
 type Sample struct {
 	Buffer []float32
-	Stream *portaudio.Stream
-}
-
-func (s * Sample) Play() {
-	s.Stream.Start()		
-	s.Stream.Write()
-	s.Stream.Stop()
-}
-
-func (s * Sample) Close() {
-	s.Stream.Close()
+	Playhead int
 }

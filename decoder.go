@@ -22,7 +22,7 @@ var EMPTY_BYTE = "\x00"
 // and returns a pointer to a parsed pattern which is the entry point to the
 // rest of the data.
 func DecodeFile(path string) (*Pattern, error) {
-
+	
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func DecodeFile(path string) (*Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		p.Tracks = append(p.Tracks, t)
 	}
 
@@ -152,7 +152,7 @@ type Track struct {
 	Id           uint8
 	NameLen      uint32
 	Name         string
-	Sample *Sample	
+	Sample       *Sample
 	StepSequence StepSequence
 }
 
