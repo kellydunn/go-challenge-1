@@ -1,10 +1,10 @@
 package drum
 
 import (
-_	"bytes"
-_	"io/ioutil"
-_	"os"
-_	"path"
+	"bytes"
+	"io/ioutil"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -14,13 +14,12 @@ func TestEncodePattern(t *testing.T) {
 		Tempo:   123.1,
 	}
 
-	err := EncodePattern(p, "test.splice")
+	err := EncodePattern(p, "fixtures/test.splice")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 }
 
-/*
 func TestDecodeEncode(t *testing.T) {
 	tData := []struct {
 		path   string
@@ -75,4 +74,3 @@ Tempo: 120
 		}
 	}
 }
-*/
