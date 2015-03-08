@@ -29,7 +29,7 @@ func (s * Sequencer) Start() {
 				ppqnCount += 1
 
 				// TODO add in time signatures
-				if ppqnCount % int(PPQN) == 0 {
+				if ppqnCount % (int(PPQN)/4) == 0 {
 					s.PlayTriggers()
 					
 					s.Beat += 1
@@ -37,13 +37,13 @@ func (s * Sequencer) Start() {
 				}
 
 				// TODO Add in time signatures
-				if ppqnCount % (int(PPQN) * 4) == 0 {
+				if ppqnCount % int(PPQN) == 0 {
 					s.Bar += 1
 					s.Bar = s.Bar % 4
 				}
 
 				// 4 bars of quarter notes
-				if ppqnCount == int(PPQN) * 4 * 4  {
+				if ppqnCount == (int(PPQN) * 4)  {
 					ppqnCount = 0
 				}				
 				
