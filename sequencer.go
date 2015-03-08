@@ -60,7 +60,7 @@ func (s * Sequencer) PlayTriggers() {
 		
 		//fmt.Printf("Checking index: %d for track: %s.\tSequence: %s\n", (s.Bar * 4) + s.Beat, track.Name, track.StepSequence)
 		if track.StepSequence.Steps[(s.Bar * 4) + s.Beat] == byte(1) {
-			track.Sample.Play()
+			go track.Sample.Play()
 		}
 	}
 }

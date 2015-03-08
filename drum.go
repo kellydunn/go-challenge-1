@@ -61,11 +61,9 @@ type Sample struct {
 }
 
 func (s * Sample) Play() {
-	go func() {
-		s.Stream.Start()		
-		s.Stream.Write()
-		s.Stream.Stop()
-	}()
+	s.Stream.Start()		
+	s.Stream.Write()
+	s.Stream.Stop()
 }
 
 func (s * Sample) Close() {
