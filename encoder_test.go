@@ -9,7 +9,7 @@ var TestPattern = &Pattern{
 	Tempo:   123.1,
 	Tracks: []*Track{
 		&Track{
-			Id:   0,
+			ID:   0,
 			Name: "kick",
 			StepSequence: StepSequence{
 				Steps: []byte{

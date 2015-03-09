@@ -2,6 +2,7 @@ package drum
 
 import (
 	"bytes"
+	"log"
 )
 
 type StepSequence struct {
@@ -13,17 +14,29 @@ func (s StepSequence) String() string {
 
 	for i, step := range s.Steps {
 		if i%4 == 0 {
-			buf.WriteString("|")
+			_, err := buf.WriteString("|")
+			if err != nil {
+				log.Printf("Error writing to buffer: %v", err)
+			}
 		}
 
 		if step == byte(0) {
-			buf.WriteString("-")
+			_, err := buf.WriteString("-")
+			if err != nil {
+				log.Printf("Error writing to buffer: %v", err)
+			}
 		} else if step == byte(1) {
-			buf.WriteString("x")
+			_, err := buf.WriteString("x")
+			if err != nil {
+				log.Printf("Error writing to buffer: %v", err)
+			}
 		}
 	}
 
-	buf.WriteString("|")
+	_, err := buf.WriteString("|")
+	if err != nil {
+		log.Printf("Error writing to buffer: %v", err)
+	}
 
 	return buf.String()
 }

@@ -6,27 +6,29 @@ import (
 )
 
 type Track struct {
-	Id           uint8
+	ID           uint8
 	NameLen      uint32
 	Name         string
 	Sample       *Sample
+	Buffer       []float32
+	Playhead     int
 	StepSequence StepSequence
 }
 
-func readTrackId(reader io.Reader, t *Track) (int, error) {
+func readTrackID(reader io.Reader, t *Track) (int, error) {
 	var id uint8
 	err := binary.Read(reader, binary.BigEndian, &id)
 	if err != nil {
 		return 0, err
 	}
 
-	t.Id = id
+	t.ID = id
 
-	return TRACK_ID_SIZE, nil
+	return TrackIDSize, nil
 }
 
 func readTrackStepSequence(reader io.Reader, t *Track) (int, error) {
-	steps := make([]byte, STEP_SEQUENCE_SIZE)
+	steps := make([]byte, StepSequenceSize)
 	err := binary.Read(reader, binary.BigEndian, &steps)
 	if err != nil {
 		return 0, err
@@ -34,7 +36,7 @@ func readTrackStepSequence(reader io.Reader, t *Track) (int, error) {
 
 	t.StepSequence = StepSequence{Steps: steps}
 
-	return STEP_SEQUENCE_SIZE, nil
+	return StepSequenceSize, nil
 }
 
 func readTrackName(reader io.Reader, t *Track) (int, error) {
@@ -46,7 +48,7 @@ func readTrackName(reader io.Reader, t *Track) (int, error) {
 		return bytesRead, err
 	}
 
-	bytesRead += TRACK_NAME_SIZE
+	bytesRead += TrackNameSize
 
 	trackNameBytes := make([]byte, trackNameLen)
 	err = binary.Read(reader, binary.BigEndian, trackNameBytes)

@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 )
 
 // Pattern is the high level representation of the
@@ -25,7 +26,7 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 	p := &Pattern{}
 
 	// Read the "SPLICE" header from the binary file.
-	spliceFile := make([]byte, SPLICE_FILE_SIZE)
+	spliceFile := make([]byte, SpliceFileSize)
 	err := binary.Read(reader, binary.BigEndian, spliceFile)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 		t := &Track{}
 
 		// Reads the Track Id from the passed in binary file.
-		read, err = readTrackId(reader, t)
+		read, err = readTrackID(reader, t)
 		if err != nil {
 			return nil, err
 		}
@@ -98,26 +99,36 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 
 func (p *Pattern) String() string {
 	buf := bytes.NewBufferString("")
-	buf.WriteString(fmt.Sprintf("Saved with HW Version: %s\n", p.Version))
-	buf.WriteString(fmt.Sprintf("Tempo: %3v\n", p.Tempo))
+	_, err := buf.WriteString(fmt.Sprintf("Saved with HW Version: %s\n", p.Version))
+	if err != nil {
+		log.Printf("Error writing string to buffer: %v", err)
+	}
+
+	_, err = buf.WriteString(fmt.Sprintf("Tempo: %3v\n", p.Tempo))
+	if err != nil {
+		log.Printf("Error writing string to buffer: %v", err)
+	}
 
 	for _, track := range p.Tracks {
-		buf.WriteString(fmt.Sprintf("(%d) %s\t%s\n", track.Id, track.Name, track.StepSequence))
+		_, err := buf.WriteString(fmt.Sprintf("(%d) %s\t%s\n", track.ID, track.Name, track.StepSequence))
+		if err != nil {
+			log.Printf("Error writing string to buffer: %v", err)
+		}
 	}
 
 	return buf.String()
 }
 
 func readPatternVersion(reader io.Reader, p *Pattern) (int, error) {
-	version := make([]byte, VERSION_SIZE)
+	version := make([]byte, VersionSize)
 	err := binary.Read(reader, binary.BigEndian, version)
 	if err != nil {
 		return 0, err
 	}
 
-	p.Version = string(bytes.Trim(version, EMPTY_BYTE))
+	p.Version = string(bytes.Trim(version, EmptyByte))
 
-	return VERSION_SIZE, nil
+	return VersionSize, nil
 }
 
 func readPatternTempo(reader io.Reader, p *Pattern) (int, error) {
@@ -129,5 +140,5 @@ func readPatternTempo(reader io.Reader, p *Pattern) (int, error) {
 
 	p.Tempo = tempo
 
-	return TEMPO_SIZE, nil
+	return TempoSize, nil
 }

@@ -1,29 +1,27 @@
-// This file provides the ability to encode a pattern into a file.
 package drum
 
 import (
-	"bytes"
 	"encoding/binary"
 	"os"
 )
 
-var SPLICE_FILE_HEADER = "SPLICE"
-
+// EncodePattern creates a new splice file at the passed in path location.
+// Returns an error if there is an issue writing the file to disk.
 func EncodePattern(pattern *Pattern, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 
-	err = binary.Write(file, binary.BigEndian, []byte(SPLICE_FILE_HEADER))
+	err = binary.Write(file, binary.BigEndian, []byte(SpliceFileHeader))
 	if err != nil {
 		return err
 	}
 
 	var size uint64
-	size = uint64(VERSION_SIZE + TEMPO_SIZE)
+	size = uint64(VersionSize + TempoSize)
 	for _, track := range pattern.Tracks {
-		size += uint64(TRACK_ID_SIZE + 4 + len(track.Name) + STEP_SEQUENCE_SIZE)
+		size += uint64(TrackIDSize + 4 + len(track.Name) + StepSequenceSize)
 	}
 
 	err = binary.Write(file, binary.BigEndian, &size)
@@ -31,11 +29,12 @@ func EncodePattern(pattern *Pattern, path string) error {
 		return err
 	}
 
-	version := make([]byte, VERSION_SIZE)
+	version := make([]byte, VersionSize)
 	tmp := []byte(pattern.Version)
-	for i, _ := range tmp {
+	for i := range tmp {
 		version[i] = tmp[i]
 	}
+
 	err = binary.Write(file, binary.BigEndian, version)
 	if err != nil {
 		return err
@@ -47,7 +46,7 @@ func EncodePattern(pattern *Pattern, path string) error {
 	}
 
 	for _, track := range pattern.Tracks {
-		err = binary.Write(file, binary.BigEndian, &track.Id)
+		err = binary.Write(file, binary.BigEndian, &track.ID)
 		if err != nil {
 			return err
 		}
@@ -66,9 +65,9 @@ func EncodePattern(pattern *Pattern, path string) error {
 		}
 
 		for _, step := range track.StepSequence.Steps {
-			if bytes.Compare([]byte{step}, []byte{0}) == 0 {
+			if step == byte(0) {
 				err = binary.Write(file, binary.BigEndian, byte(0))
-			} else if bytes.Compare([]byte{step}, []byte{1}) == 0 {
+			} else if step == byte(1) {
 				err = binary.Write(file, binary.BigEndian, byte(1))
 			}
 
