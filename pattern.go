@@ -16,7 +16,7 @@ type Pattern struct {
 	Tracks  []*Track
 }
 
-// Creates and returns a pointer to a new Pattern.
+// NewPattern creates and returns a pointer to a new Pattern.
 // Returns an error if one was encountered from attempting to read
 // from the passed in io.Reader.  This can happen if the
 // passed in reader does not comply with the binary Splice format.
@@ -126,7 +126,7 @@ func readPatternVersion(reader io.Reader, p *Pattern) (int, error) {
 		return 0, err
 	}
 
-	p.Version = string(bytes.Trim(version, EmptyByte))
+	p.Version = string(bytes.Trim(version, EmptyByteString))
 
 	return VersionSize, nil
 }

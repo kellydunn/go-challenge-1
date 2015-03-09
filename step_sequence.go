@@ -5,10 +5,13 @@ import (
 	"log"
 )
 
+// StepSequence describes an entire 4/4, 16-step sequence.
 type StepSequence struct {
 	Steps []byte
 }
 
+// String implements the Stringer interface and returns
+// a string representation of the step sequence.
 func (s StepSequence) String() string {
 	buf := bytes.NewBufferString("")
 

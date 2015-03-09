@@ -31,7 +31,7 @@ errcheck: deps
 	errcheck $(DIRS:%=github.com/kellydunn/go-challenge-1/%/...)
 
 lint: deps
-	golint $(DIRS) | grep -v pb.go # Ignore generated protobuf source
+	golint $(DIRS) 
 
 vet: deps
 	go vet $(DIRS:%=github.com/kellydunn/go-challenge-1/%/...)
