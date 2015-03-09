@@ -36,7 +36,7 @@ func TestReadPatternVersion(t *testing.T) {
 	}
 
 	if read != VERSION_SIZE {
-		t.Errorf("Mismatched bytes read. Expected %d.  Actual: %d", VERSION_SIZE, read)		
+		t.Errorf("Mismatched bytes read. Expected %d.  Actual: %d", VERSION_SIZE, read)
 	}
 }
 
@@ -55,6 +55,6 @@ func TestReadPatternTempo(t *testing.T) {
 	}
 
 	if read != TEMPO_SIZE {
-		t.Errorf("Mismatched bytes read. Expected %d.  Actual: %d", TEMPO_SIZE, read)		
+		t.Errorf("Mismatched bytes read. Expected %d.  Actual: %d", TEMPO_SIZE, read)
 	}
 }

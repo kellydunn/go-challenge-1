@@ -16,9 +16,9 @@ func (s StepSequence) String() string {
 			buf.WriteString("|")
 		}
 
-		if bytes.Compare([]byte{step}, []byte{0}) == 0 {
+		if step == byte(0) {
 			buf.WriteString("-")
-		} else if bytes.Compare([]byte{step}, []byte{1}) == 0 {
+		} else if step == byte(1) {
 			buf.WriteString("x")
 		}
 	}
