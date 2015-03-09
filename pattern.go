@@ -97,6 +97,8 @@ func NewPattern(reader io.Reader) (*Pattern, error) {
 	return p, nil
 }
 
+// String implements the Stringer interface.
+// Returns a string representation of the current Pattern.
 func (p *Pattern) String() string {
 	buf := bytes.NewBufferString("")
 	_, err := buf.WriteString(fmt.Sprintf("Saved with HW Version: %s\n", p.Version))
@@ -119,6 +121,8 @@ func (p *Pattern) String() string {
 	return buf.String()
 }
 
+// Reads the pattern Version from the passed in reader and applies to the passed in pattern pointer.
+// Returns the number of bytes read, or an error if there is one that is encountered.
 func readPatternVersion(reader io.Reader, p *Pattern) (int, error) {
 	version := make([]byte, VersionSize)
 	err := binary.Read(reader, binary.BigEndian, version)
@@ -131,6 +135,8 @@ func readPatternVersion(reader io.Reader, p *Pattern) (int, error) {
 	return VersionSize, nil
 }
 
+// Reads the pattern Tempo from the passed in reader and applies to the passed in pattern pointer.
+// Returns the number of bytes read, or an error if there is one that is encountered.
 func readPatternTempo(reader io.Reader, p *Pattern) (int, error) {
 	var tempo float32
 	err := binary.Read(reader, binary.LittleEndian, &tempo)
