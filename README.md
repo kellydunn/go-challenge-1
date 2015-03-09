@@ -1,6 +1,6 @@
-# go-challenge-1
+OB# go-challenge-1
 
-This is my implementation for the March [2015 golang challenge](http://golang-challenge.com/go-challenge1/).
+This is my implementation for the [March 2015 golang challenge](http://golang-challenge.com/go-challenge1/).
 
 ## File Protocol
 
