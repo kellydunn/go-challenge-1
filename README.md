@@ -1,6 +1,38 @@
-OB# go-challenge-1
+# go-challenge-1
 
 This is my implementation for the [March 2015 golang challenge](http://golang-challenge.com/go-challenge1/).
+
+## Build
+
+This project uses a [Makefile](./Makefile) to build itself.  If you have cloned the repository, and are building it locally, you can build this library by issuing the following command:
+
+```bash
+$ make
+```
+
+This will run `go fmt`, vet, lint, errcheck, and test the library, and finally resulting in building the package.
+
+## Usage
+
+This library is intended to be imported and used within your go project, so to get started, just import the library!
+
+```golang
+package main
+
+import (
+       drum "github.com/kellydunn/go-challenge-1"
+       "fmt"
+)
+
+func main() {
+     pattern, err := drum.DecodeFile(path)
+     if err != nil {
+        fmt.Printf("Error opening pattern: %v\n", err)
+     }
+
+     fmt.Printf("Loaded pattern: %s\n", pattern)
+}
+```
 
 ## File Protocol
 
@@ -67,3 +99,4 @@ The Track Name is comprised of two parts encoded in the file.  First, appears to
 
 The final component of each Track looks to be a series of 16 bytes, each of which describes whether or not the corresponding track should be driggered for a given 16th note in the step sequencer.
 
+Happy Hacking!
