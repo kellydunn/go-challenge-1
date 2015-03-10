@@ -21,7 +21,7 @@ func EncodePattern(pattern *Pattern, path string) error {
 	var size uint64
 	size = uint64(VersionSize + TempoSize)
 	for _, track := range pattern.Tracks {
-		size += uint64(TrackIDSize + 4 + len(track.Name) + StepSequenceSize)
+		size += uint64(TrackIDSize + TrackNameSize + len(track.Name) + StepSequenceSize)
 	}
 
 	err = binary.Write(file, binary.BigEndian, &size)
